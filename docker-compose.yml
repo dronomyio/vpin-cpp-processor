@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  vpin-cpp-processor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vpin-cpp-processor
+    restart: unless-stopped
+    
+    environment:
+      # Kafka configuration
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}
+      KAFKA_GROUP_ID: ${KAFKA_GROUP_ID:-vpin-cpp-processor}
+      KAFKA_INPUT_TOPIC: ${KAFKA_INPUT_TOPIC:-crypto.processed.trades}
+      KAFKA_OUTPUT_TOPIC: ${KAFKA_OUTPUT_TOPIC:-crypto.microstructure.vpin}
+      
+      # VPIN configuration
+      BUCKET_SIZE: ${BUCKET_SIZE:-10000}
+      NUM_BUCKETS: ${NUM_BUCKETS:-50}
+      EMIT_INTERVAL: ${EMIT_INTERVAL:-100}
+    
+    depends_on:
+      - kafka
+    
+    networks:
+      - crypto-network
+    
+    # Resource limits (adjust based on your needs)
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+        reservations:
+          cpus: '1.0'
+          memory: 512M
+    
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  crypto-network:
+    external: true
+    name: crypto-ingestion-engine_default
+
+# Note: This assumes you're integrating with the existing crypto-ingestion-engine
+# If running standalone, you'll need to define kafka and zookeeper services here
