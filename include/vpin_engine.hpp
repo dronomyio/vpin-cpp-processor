@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <memory>
 #include <mutex>
+#include <optional>
 
 namespace vpin {
 
@@ -113,7 +114,7 @@ public:
     VPINState(double bucket_sz, uint32_t num_buckets)
         : bucket_size(bucket_sz), max_buckets(num_buckets),
           current_bucket(), trade_count(0) {
-        completed_buckets.reserve(num_buckets);
+        //completed_buckets.reserve(num_buckets); //// Note: deque doesn't have reserve(), but pre-allocates efficiently
     }
     
     void add_trade(const CryptoTrade& trade);

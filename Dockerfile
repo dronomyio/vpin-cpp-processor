@@ -27,7 +27,8 @@ FROM ubuntu:22.04
 
 # Install runtime dependencies only
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    librdkafka1 \
+    #librdkafka1 \
+    librdkafka1 librdkafka++1 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
