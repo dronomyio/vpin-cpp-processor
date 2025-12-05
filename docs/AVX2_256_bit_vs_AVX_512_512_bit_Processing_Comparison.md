@@ -1,5 +1,29 @@
 # AVX2 (256-bit) vs AVX-512 (512-bit) Processing Comparison
 
+# why the AVX2 code being executed:
+```
+The VPIN C++ processor appears to be in a separate repository or Docker image. Based on your earlier top output showing vpin-processor running, it's likely built in its own container.
+The compilation flags would be in one of these locations:
+
+CMakeLists.txt in the vpin-processor repo:
+  - cmake:
+add_compile_options(-mavx2 -O3)
+
+Makefile:
+  - makefile
+CXXFLAGS = -std=c++17 -mavx2 -O3
+
+Dockerfile for vpin-processor:
+ - dockerfile
+RUN g++ -mavx2 -O3 vpin_engine.cpp -o vpin-processor
+
+The -mavx2 flag is what enables the #ifdef __AVX2__ code path at compile time.
+```
+# how to compile with AVX 512 flag
+```
+Change the compilation flag from -mavx2 to -mavx512f (and optionally add other AVX-512 extensions like -mavx512dq -mavx512bw -mavx512vl) in your CMakeLists.txt, Makefile, or Dockerfile where the C++ code is compiled, then add #ifdef __AVX512F__ code blocks in your vpin_engine.cpp to use 512-bit intrinsics like _mm512_loadu_pd and _mm512_add_pd.
+```
+
 ## Scenario: Summing 16 double-precision volumes (128 bytes total)
 
 Each `double` = 8 bytes = 64 bits
